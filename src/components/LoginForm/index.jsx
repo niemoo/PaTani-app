@@ -17,10 +17,9 @@ const LoginForm = () => {
         // Signed in
         const user = userCredential.user;
         // ...
-        console.log(user);
         alert('login success');
         sessionStorage.setItem('user', true);
-        router.push('/beranda');
+        router.push('/post');
       })
       .catch((error) => {
         const errorCode = error.code;

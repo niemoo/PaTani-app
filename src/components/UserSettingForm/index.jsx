@@ -1,20 +1,23 @@
 'use client';
 
-import FirebaseConfig from '../../services/firebase';
+import { db } from '../../services/firebase';
+import { auth } from '@/services/firebase';
+import { useAuthState } from 'react-firebase-hooks/auth';
 import { ref, set, get, update, remove, child } from 'firebase/database';
 import { useState } from 'react';
 
-const database = FirebaseConfig();
-
-const FirebaseCRUD = () => {
+const UserSettingForm = () => {
+  const [user] = useAuthState(auth);
+  const [data, setData] = useState(user);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
 
-  const dbref = ref(database);
+  const dbref = ref(db);
 
   const insertData = () => {
-    set(ref(database, 'Users/' + username), {
+    set(ref(db, 'users/' + data?.uid), {
+      username: username,
       email: email,
       fullname: name,
     }).then(() => {
@@ -23,10 +26,11 @@ const FirebaseCRUD = () => {
   };
 
   const updateData = () => {
-    get(child(dbref, 'Users/' + username))
+    get(child(dbref, 'users/' + data?.uid))
       .then((snapshot) => {
         if (snapshot.exists()) {
-          update(ref(database, 'Users/' + username), {
+          update(ref(db, 'users/' + data?.uid), {
+            username: username,
             email: email,
             fullname: name,
           }).then(() => {
@@ -43,10 +47,10 @@ const FirebaseCRUD = () => {
   };
 
   const removeData = () => {
-    get(child(dbref, 'Users/' + username))
+    get(child(dbref, 'users/' + username))
       .then((snapshot) => {
         if (snapshot.exists()) {
-          remove(ref(database, 'Users/' + username)).then(() => {
+          remove(ref(database, 'users/' + data?.uid)).then(() => {
             alert('delete success');
           });
         } else {
@@ -60,7 +64,7 @@ const FirebaseCRUD = () => {
   };
 
   const selectData = () => {
-    get(child(dbref, `Users/${username}`))
+    get(child(dbref, `users/${data?.uid}`))
       .then((snapshot) => {
         if (snapshot.exists()) {
           setEmail(snapshot.val().email);
@@ -110,4 +114,4 @@ const FirebaseCRUD = () => {
   );
 };
 
-export default FirebaseCRUD;
+export default UserSettingForm;
